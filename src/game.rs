@@ -2,12 +2,16 @@ use super::dice::{DICE_CONNECTION_ROUTES, DICE_REGULAR_ROUTES};
 use super::route::RouteKind;
 use std::io;
 
+const GAME_ROUNDS: usize = 7;
+const ROUTES_PER_ROUNDS: usize = 4;
+const REGULAR_ROUTES_PER_ROUNDS: usize = 3;
+
 pub struct Game {
-    rounds: [RoundRoll; 7],
+    rounds: [RoundRoll; GAME_ROUNDS],
 }
 
 pub struct RoundRoll {
-    routes: [RouteKind; 4],
+    routes: [RouteKind; ROUTES_PER_ROUNDS],
 }
 
 impl Game {
@@ -27,15 +31,7 @@ impl Game {
 
     pub fn generate_random() -> Game {
         Game {
-            rounds: [
-                RoundRoll::generate_random(),
-                RoundRoll::generate_random(),
-                RoundRoll::generate_random(),
-                RoundRoll::generate_random(),
-                RoundRoll::generate_random(),
-                RoundRoll::generate_random(),
-                RoundRoll::generate_random(),
-            ],
+            rounds: std::array::from_fn(|_| RoundRoll::generate_random()),
         }
     }
 }
@@ -48,12 +44,13 @@ impl RoundRoll {
     }
     fn generate_random() -> RoundRoll {
         RoundRoll {
-            routes: [
-                DICE_REGULAR_ROUTES.roll(),
-                DICE_REGULAR_ROUTES.roll(),
-                DICE_REGULAR_ROUTES.roll(),
-                DICE_CONNECTION_ROUTES.roll(),
-            ],
+            routes: std::array::from_fn(|i| {
+                if i < REGULAR_ROUTES_PER_ROUNDS {
+                    DICE_REGULAR_ROUTES.roll()
+                } else {
+                    DICE_CONNECTION_ROUTES.roll()
+                }
+            }),
         }
     }
 }
