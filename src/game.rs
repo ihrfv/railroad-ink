@@ -27,6 +27,8 @@ impl Game {
             let mut buffer = String::new();
             let _ = io::stdin().read_line(&mut buffer).unwrap();
         }
+        println!("--------------------");
+        println!("The end of the game!");
     }
 
     pub fn generate_random() -> Game {
@@ -40,6 +42,7 @@ impl RoundRoll {
     fn print(&self) {
         for (dice, route_kind) in self.routes.iter().enumerate() {
             println!("Dice {}: {:?}", dice + 1, route_kind);
+            print!("{}", route_kind.get_route().get_image_as_string())
         }
     }
     fn generate_random() -> RoundRoll {

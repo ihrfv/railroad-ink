@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Clone, Copy, Debug)]
 pub enum RoutePart {
     Highway,
@@ -43,6 +45,62 @@ pub const SPECIAL_ROUTES: [RouteKind; 6] = [
     RouteKind::HighwayRailwayTjunktion,
     RouteKind::RailwayHighwayTjunktion,
 ];
+
+impl RoutePart {
+    fn is_none(&self) -> bool {
+        if let RoutePart::None = self {
+            return true;
+        }
+
+        false
+    }
+
+    fn is_some(&self) -> bool {
+        !self.is_none()
+    }
+
+    fn to_char(&self) -> char {
+        match self {
+            RoutePart::Highway => 'H',
+            RoutePart::Railway => 'R',
+            RoutePart::None => ' ',
+        }
+    }
+}
+
+impl Route {
+    pub fn get_image_as_string(&self) -> String {
+        self.to_char_view().to_string()
+    }
+
+    fn to_char_view(&self) -> RouteCharView {
+        let mut view = [[' '; 3]; 3];
+        for network in &self.networks {
+            if let Some(Network(north, east, south, west)) = network {
+                if north.is_some() {
+                    view[0][1] = north.to_char();
+                }
+                if east.is_some() {
+                    view[1][2] = east.to_char();
+                }
+                if south.is_some() {
+                    view[2][1] = south.to_char();
+                }
+                if west.is_some() {
+                    view[1][0] = west.to_char();
+                }
+
+                if view[1][1] != ' ' {
+                    // it means it's a second disconnected network
+                    view[1][1] = 'O';
+                } else {
+                    view[1][1] = '*';
+                }
+            }
+        }
+        RouteCharView { view }
+    }
+}
 
 impl RouteKind {
     pub fn get_route(&self) -> Route {
@@ -222,5 +280,19 @@ impl RouteKind {
                 ],
             },
         }
+    }
+}
+
+struct RouteCharView {
+    view: [[char; 3]; 3],
+}
+
+impl fmt::Display for RouteCharView {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for row in self.view {
+            let row: String = row.iter().collect();
+            writeln!(f, "{}", row)?;
+        }
+        Ok(())
     }
 }

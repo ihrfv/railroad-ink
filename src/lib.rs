@@ -1,3 +1,3 @@
-pub mod dice;
+mod dice;
 pub mod game;
-pub mod route;
+mod route;
